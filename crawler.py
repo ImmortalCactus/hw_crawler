@@ -1,5 +1,9 @@
 from bs4 import BeautifulSoup
 import requests
+from lxml import etree
+from datetime import datetime
+from time import *
+
 
 
 class Crawler(object):
@@ -28,6 +32,7 @@ class Crawler(object):
                 contents += rets
             if last_date < start_date:
                 break
+                
         return contents
 
     def crawl_page(self, start_date, end_date, page=''):
@@ -49,13 +54,32 @@ class Crawler(object):
         ).content.decode()
         sleep(0.1)
         # TODO: parse the response and get dates, titles and relative url with etree
+        soup = BeautifulSoup(res, 'lxml')
+        table = soup.find('table', {'id':'RSS_Table_page_news_1'})
+        list_rows = table.tbody.find_all('tr')
+        news_list = list()
         contents = list()
-        for rel_url in rel_urls:
+        for row in list_rows:
+            news_list.append((row.td.text, row.find_all('td')[1].a.text, row.find_all('td')[1].a.attrs['href']))
+        
+        last_date = end_date
+        for news in news_list:
+            date_split = news[0].split('-')
+            news_date = datetime(int(date_split[0]),int(date_split[1]),int(date_split[2]))
+            news_url = self.base_url + news[2]
+            news_content = self.crawl_content(news_url)
+            if(last_date>news_date):
+                last_date = news_date
+            if(news_date>=start_date and news_date<=end_date):
+                contents.append((news_date,news[1],news_content))
+        #for rel_url in rel_urls:
             # TODO: 1. concatenate relative url to full url
             #       2. for each url call self.crawl_content
             #          to crawl the content
             #       3. append the date, title and content to
             #          contents
+
+
         return contents, last_date
 
     def crawl_content(self, url):
@@ -68,5 +92,11 @@ class Crawler(object):
         """
         doc = requests.get(url).content.decode()
         sleep(0.1)
-        soup = BeautifulSoup(doc, 'html.parser')
+        soup = BeautifulSoup(doc, 'lxml')
         return soup.find('div',{'class':'editor content'}).text
+
+
+#for testing
+#crawler = Crawler()
+#content = crawler.crawl(datetime(2019,12,1), datetime(2019,12,20))
+
