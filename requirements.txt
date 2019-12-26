@@ -1,12 +1,16 @@
-pipbeautifulsoup4==4.8.1
+beautifulsoup4==4.8.1
 bs4==0.0.1
 certifi==2019.11.28
 chardet==3.0.4
 DateTime==4.3
+fancycompleter==0.8
 idna==2.8
 lxml==4.4.2
+pdbpp==0.10.2
+Pygments==2.5.2
 pytz==2019.3
 requests==2.22.0
 soupsieve==1.9.5
 urllib3==1.25.7
+wmctrl==0.3
 zope.interface==4.7.1
